@@ -1,0 +1,40 @@
+Jason Millette
+HW#2
+
+Analysis:
+a. 
+	1 thread:
+		time = 118.93s
+		GFLOPs = 4.485e+01
+	2 threads:
+		time = 62.10s
+		GFLOPs = 8.590e+01
+	4 threads:
+		time = 34.61s
+		GFLOPs = 1.541e+02
+	8 threads:
+		time = 20.60
+		GFLOPs = 2.589e+02
+
+b. 
+	2 threads speedup = 1.9151
+	4 threads speedup = 3.4363
+	8 threads speedup = 5.7733
+
+	2 threads parallel efficiency = 0.9576
+	4 threads parallel efficiency = 0.8591
+	8 threads parallel efficiency = 0.7217
+
+	The benchmark shows strong scaling as adding more threads does not increase the problem set.
+
+	The benchmark does not show weak scaling as adding more threads did not increase the problem size.
+
+	HPL gives the time it took to perform the math, where time is showing the total time the program ran.
+
+	The user space is the time it took on all cores combined.
+
+3. 
+	a. 62.91% dgemm_kernel
+	b. 0.93 vmovups (%r15),%ymm3
+	c. skidding could cause the infromation to be incorrect.
+	
