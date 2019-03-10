@@ -1,0 +1,5 @@
+output_width=4288, output_height=2929, output_components=3
+Load time: 164886
+Convolve time: 93771
+Combine time: 52037
+Store time: 115856

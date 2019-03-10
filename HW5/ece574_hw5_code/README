@@ -1,0 +1,55 @@
+ECE574 Spring 2019 Homework #5
+
+Name: Jason Millette
+
+Results:
+	Coarse:
+		Original: 3.291s
+		OMP: 3.142s
+	
+	Fine:
+		1 Thread:
+			Total time: 2.702
+			Load time: 163540
+			Convolve time: 750762
+			Combine time: 310027
+			Store time: 89087
+		2 Threads:
+			Total time: 2.554
+			Load time: 163640
+			Convolve time: 429280
+			Combine time: 214972
+			Store time: 115488
+		4 Threads:
+			Total time: 2.331
+			Load time: 98847
+			Convolve time: 223854 
+			Combine time: 172050
+			Store time: 126988
+		8 Threads:
+			Total time: 2.74
+			Load time: 141940
+			Convolve time: 177161
+			Combine time: 61565
+			Store time: 130429
+		16 Threads:
+			Total time: 3.093
+			Load time: 125804
+			Convolve time: 114419
+			Combine time: 70840
+			Store time: 152834
+		32 Threads:
+			Total time: 4.408
+			Load time: 98551
+			Convolve time: 59326
+			Combine time: 57253
+			Store time: 115686
+		Switching form static to dynamic drastically increased time. 16 threads was over 10 seconds.
+Describe something cool:
+Added simd to the sobel_fine.
+		16 Threads:
+			Total time: 2.787
+			Load time: 164886
+			Convolve time: 93771
+			Combine time: 52037
+			Store time: 115856

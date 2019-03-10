@@ -1,0 +1,24 @@
+ECE574 HW#3
+Spring 2019
+
+Name:
+
+
+Sobel measurements (butterfinger):
+	time: 0.099ms
+	L3 cache misses: 1579
+	Total clock cycles: 23900257
+
+Sobel measurements (space_station_hires):
+	time: 3.303ms
+	L3 cache misses: 4011846
+	Total clock cycles: 4144265340
+
+
+Something cool (if any):
+	Describe what you did: flipped the x and y loops for optomizetaion.
+
+	Measurements for space_station_hires: 
+		time: 3.291ms
+		L3 cache misses: 4005889
+		Total clock cycles: 4145965685

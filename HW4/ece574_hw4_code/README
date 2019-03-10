@@ -1,0 +1,14 @@
+ECE574 Spring 2019 Homework #4
+
+Name: Jason Millette
+
+problem3:
+	HW3 time: 3.303s
+	HW4 time: 3.506s
+problem4:
+	Load time: 115238
+	Convolve time: 723523
+	Combine time: 426063
+	Store time: 116359
+Answer to question:
+	If function_one and function_two were called at the same time and they both grabbed a lock, neither would be able to progress as neither can get both locks at the same time. This would also cause the locks to never be released.
