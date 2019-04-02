@@ -1,0 +1,22 @@
+ECE574 Spring 2019 Homework #8
+
+Name: Jason Millette
+
+
+3.
+	coarse timing results:
+	Load time: 123186
+	Convolve time: 1163953
+	Copy host to device: 10744
+	Combine time: 46190
+	Copy device to host: 12935
+	Store time: 87961
+	Total time = 1582685
+
+
+4.
+	fine_timing results:
+
+
+
+	Which was faster, CPU or GPU?
