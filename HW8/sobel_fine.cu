@@ -231,9 +231,9 @@ int main(int argc, char **argv) {
 
 	//Allocating GPU memory
 	unsigned char *dev_in_y, *dev_out_x, *dev_out_y, *dev_in_x;
-	int imageSize = image.y * image.x * image.depth, dev_xFilter[9], dev_yFilter[9];
-	static int xFilter[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-	static int yFilter[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+	int imageSize = image.y * image.x * image.depth, *dev_xFilter, *dev_yFilter;
+	int xFilter[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+	int yFilter[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
 	cudaMalloc((void **)&dev_in_y,(imageSize*sizeof(char)));
 	cudaMalloc((void **)&dev_out_y,(imageSize*sizeof(char)));
 	cudaMalloc((void **)&dev_in_x,(imageSize*sizeof(char)));

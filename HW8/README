@@ -15,8 +15,19 @@ Name: Jason Millette
 
 
 4.
-	fine_timing results:
+	Fine timing results:
+	Load time: 102081 
+	Convolve time: 275499
+	Copy host to device: 11196
+	Combine time: 45966
+	Copy device to host: 15771
+	Store time: 114394
+	Total time = 565743
 
 
 
 	Which was faster, CPU or GPU?
+
+The GPU was faster
+GPU total: 565743
+CPU total: 1567235
