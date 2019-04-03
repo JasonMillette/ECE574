@@ -15,8 +15,6 @@
 #include <papi.h>
 
 /* Filters */
-static int sobel_x_filter[3][3]={{-1,0,+1},{-2,0,+2},{-1,0,+1}};
-static int sobel_y_filter[3][3]={{-1,-2,-1},{0,0,0},{1,2,+1}};
 
 /* Structure describing the image */
 struct image_t {
@@ -33,70 +31,6 @@ struct convolve_data_t {
 	int ystart;
 	int yend;
 };
-
-#if 0
-__global__
-void cuda_generic_convolve (int n, char *in, int *matrix, char *out) {
-
-}
-
-__global__
-void cuda_combine (int n, unsigned char *in_x, 
-		unsigned char *in_y, unsigned char *out) {
-}
-
-#endif
-
-
-/* very inefficient convolve code */
-static void *generic_convolve(void *argument) {
-
-	int x,y,k,l,d;
-	uint32_t color;
-	int sum,depth,width;
-
-	struct image_t *old;
-	struct image_t *newt;
-	int (*filter)[3][3];
-	struct convolve_data_t *data;
-	int ystart, yend;
-
-	/* Convert from void pointer to the actual data type */
-	data=(struct convolve_data_t *)argument;
-	old=data->old;
-	newt=data->newt;
-	filter=data->filter;
-
-	ystart=data->ystart;
-	yend=data->yend;
-
-	depth=old->depth;
-	width=old->x*old->depth;
-
-	if (ystart==0) ystart=1;
-	if (yend==old->y) yend=old->y-1;
-
-	for(d=0;d<3;d++) {
-	   for(x=1;x<old->x-1;x++) {
-	     for(y=ystart;y<yend;y++) {
-		sum=0;
-		for(k=-1;k<2;k++) {
-		   for(l=-1;l<2;l++) {
-			color=old->pixels[((y+l)*width)+(x*depth+d+k*depth)];
-			sum+=color * (*filter)[k+1][l+1];
-		   }
-		}
-
-		if (sum<0) sum=0;
-		if (sum>255) sum=255;
-
-		newt->pixels[(y*width)+x*depth+d]=sum;
-	     }
-	   }
-	}
-
-	return NULL;
-}
 
 //global for CUDA function
 __global__
@@ -231,10 +165,32 @@ static int store_jpeg(const char *filename, struct image_t *image) {
 	return 0;
 }
 
+__global__
+void cuda_generic_convolve (int imageSize, unsigned char *in, int *matrix, unsigned char *out, int xsize, int depth) {
+	int i = blockIdx.x*blockDim.x+threadIdx.x;
+	int sum = 0;
+	if((i%(xsize*depth) >= depth) && (i%(xsize*depth) <= (xsize*depth-depth-1)) && (i >= (xsize*depth+depth)) && (i <= (imageSize-xsize*depth-depth-1)) && (i < imageSize)) {
+		sum+=in[i-3-(xsize*depth)]*matrix[0];
+		sum+=in[i-(xsize*depth)]*matrix[1];
+		sum+=in[i+3-(xsize*depth)]*matrix[2];
+		sum+=in[i-3]*matrix[3];
+		sum+=in[i]*matrix[4];
+		sum+=in[i+3]*matrix[5];
+		sum+=in[i-3+(xsize*depth)]*matrix[6];
+		sum+=in[i+(xsize*depth)]*matrix[7];
+		sum+=in[i+3+(xsize*depth)]*matrix[8];
+
+		if (sum<0) sum=0;
+		if (sum>255) sum=255;
+
+		out[i] = sum;
+	}
+		return;
+}
+
 int main(int argc, char **argv) {
 
 	struct image_t image,sobel_x,sobel_y,new_image; 
-	struct convolve_data_t sobel_data[2];
 	long long start_time,load_time,convolve_time;
 	long long combine_after=0,combine_before=0;
 	long long copy_before=0,copy_after=0,copy2_before=0,copy2_after=0;
@@ -273,33 +229,51 @@ int main(int argc, char **argv) {
 	sobel_y.depth=image.depth;
 	sobel_y.pixels=(unsigned char *)calloc(image.x*image.y*image.depth,sizeof(char));
 
-	/* convolution */
-	sobel_data[0].old=&image;
-	sobel_data[0].newt=&sobel_x;
-	sobel_data[0].filter=&sobel_x_filter;
-	sobel_data[0].ystart=0;
-	sobel_data[0].yend=image.y;
-	generic_convolve((void *)&sobel_data[0]);
+	//Allocating GPU memory
+	unsigned char *dev_in_y, *dev_out_x, *dev_out_y, *dev_in_x;
+	int imageSize = image.y * image.x * image.depth, dev_xFilter[9], dev_yFilter[9];
+	static int xFilter[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+	static int yFilter[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+	cudaMalloc((void **)&dev_in_y,(imageSize*sizeof(char)));
+	cudaMalloc((void **)&dev_out_y,(imageSize*sizeof(char)));
+	cudaMalloc((void **)&dev_in_x,(imageSize*sizeof(char)));
+	cudaMalloc((void **)&dev_out_x,(imageSize*sizeof(char)));
+	cudaMalloc((void **)&dev_xFilter,(9*sizeof(int)));
+	cudaMalloc((void **)&dev_yFilter,(9*sizeof(int)));
 
-	sobel_data[1].old=&image;
-	sobel_data[1].newt=&sobel_y;
-	sobel_data[1].filter=&sobel_y_filter;
-	sobel_data[1].ystart=0;
-	sobel_data[1].yend=image.y;
-	generic_convolve((void *)&sobel_data[1]);
+	//copying memory to GPU
+	cudaMemcpy(dev_in_y, image.pixels, (imageSize*sizeof(char)),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_in_x, image.pixels, (imageSize*sizeof(char)),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_yFilter, yFilter, (9*sizeof(int)),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_xFilter, xFilter, (9*sizeof(int)),cudaMemcpyHostToDevice);
+
+	//convolving
+	cuda_generic_convolve<<<(imageSize+255)/256,256>>>(imageSize, dev_in_y, dev_yFilter, dev_out_y, image.x, image.depth);
+	cudaDeviceSynchronize();
+	cuda_generic_convolve<<<(imageSize+255)/256,256>>>(imageSize, dev_in_x, dev_xFilter, dev_out_x, image.x, image.depth);
+
+	// wait for convolves to finish
+	cudaDeviceSynchronize();
+	//check for errors
+	cudaError_t error = cudaGetLastError();
+	if( error != cudaSuccess) {
+		printf("%s Big oof!\n", cudaGetErrorString(error));
+	}
+
+	cudaMemcpy(sobel_y.pixels, dev_out_y, (imageSize*sizeof(char)),cudaMemcpyDeviceToHost);
+	cudaMemcpy(sobel_x.pixels, dev_out_x, (imageSize*sizeof(char)),cudaMemcpyDeviceToHost);
 
 	convolve_time=PAPI_get_real_usec();
 
 	/* Combine to form output */
 	//Allocating memory on GPU
 	unsigned char *dev_sobelx, *dev_sobely, *dev_new;
-	int imageSize = image.y * image.x * image.depth;
 
 	cudaMalloc((void **)&dev_sobelx,(image.x*image.y*image.depth*sizeof(char)));
 	cudaMalloc((void **)&dev_sobely,(image.x*image.y*image.depth*sizeof(char)));
 	cudaMalloc((void **)&dev_new,(image.x*image.y*image.depth*sizeof(char)));
 
-	//copying memoty to GPU
+	//copying memory to GPU
 	copy_before = PAPI_get_real_usec();
 	cudaMemcpy(dev_sobelx, sobel_x.pixels, (imageSize*sizeof(char)),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_sobely, sobel_y.pixels, (imageSize*sizeof(char)),cudaMemcpyHostToDevice);
@@ -321,7 +295,6 @@ int main(int argc, char **argv) {
 	copy2_before= PAPI_get_real_usec();
 	cudaMemcpy(new_image.pixels, dev_new, (imageSize*sizeof(char)),cudaMemcpyDeviceToHost);
 	copy2_after= PAPI_get_real_usec();
-
 
 	store_before=PAPI_get_real_usec();
 
