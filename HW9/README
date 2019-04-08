@@ -1,0 +1,41 @@
+ECE574 Spring 2019 Homework #9
+
+Name: Jason Millette
+
+
+Timing on NVIDIA GPU:
+	Load time: 98922
+	Convolve time: 48475
+	Copy time: 26377
+	Combine time: 57300
+	Store time: 114906
+	Total time = 871108
+
+Timing on Intel-optimized CPU:
+	Load time: 98889
+	Convolve time: 27803
+	Copy time: 32270
+	Combine time: 35525
+	Store time: 115411
+	Total time = 721799
+
+Timing on portable POCL driver:
+	Load time: 112554
+	Convolve time: 206141
+	Copy time: 36104
+	Combine time: 297545
+	Store time: 98592
+	Total time = 1474428
+
+Timing of your CUDA code:
+	Load time: 102081
+	Convolve time: 275499
+	Copy time: 26967
+	Combine time: 45966
+	Store time: 114394
+	Total time = 565743
+
+Question:  Which ran faster and why?
+
+CUDA code was faster as it is optimized for Nvidia GPUs.
+
