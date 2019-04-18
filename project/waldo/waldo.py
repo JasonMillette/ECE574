@@ -2,21 +2,28 @@
 #Jason Millette, Spencer Goulette
 #4/17/19
 
+#Uses template matching to find waldo
+
 import cv2
 import numpy as np
 
-# Read image
-img = cv2.imread("waldo3.jpg", cv2.IMREAD_COLOR)
+# Read images
+original = cv2.imread("waldo2.jpeg", cv2.IMREAD_COLOR)
+waldo = cv2.imread("posWaldo.jpeg", cv2.IMREAD_COLOR)
+#w, h = waldo.shape[::-1]
 
-#Create numpy arrays for red
-lower = np.array([60, 60, 120], dtype = "uint8")
-upper = np.array([120, 120, 255], dtype = "uint8")
+#find matches
+result = cv2.matchTemplate(original, waldo, cv2.TM_CCOEFF)
+min_val, max_val, min_loc, mac_loc = cv2.minMaxLoc(result)
 
-#mask, find the color red
-mask = cv2.inRange(img, lower, upper)
-output = cv2.bitwise_and(img, img, mask = mask)
+#box waldo
+#topLeft = maxLoc
+#botRight = (topLeft[0] + w, topLeft[1] + h)
+#cv2.rectangle(original, top_left, bottom_right, 255, 2)
 
+#write out image
+cv2.imwrite("out.jpeg", result)
 #display
-cv2.imshow("Original", img)
-cv2.imshow("filtered", output)
-cv2.waitKey(0)
+#cv2.imshow("result", result)
+#cv2.imshow("template", waldo)
+#cv2.waitKey(0)
