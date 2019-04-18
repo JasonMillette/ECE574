@@ -9,7 +9,7 @@ import numpy as np
 
 # Read images
 original = cv2.imread("waldo2.jpeg", cv2.IMREAD_COLOR)
-waldo = cv2.imread("posWaldo.jpeg", cv2.IMREAD_COLOR)
+waldo = cv2.imread("templateWaldo.jpeg", cv2.IMREAD_COLOR)
 w, h, channels = waldo.shape
 
 #find matches
