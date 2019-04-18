@@ -13,7 +13,7 @@ waldo = cv2.imread("templateWaldo.jpeg", cv2.IMREAD_COLOR)
 w, h, channels = waldo.shape
 
 #find matches
-result = cv2.matchTemplate(original, waldo, cv2.TM_CCOEFF_NORMED)
+result = cv2.matchTemplate(original, waldo, cv2.TM_CCOEFF)
 min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
 #box waldo
