@@ -8,16 +8,16 @@ import cv2
 import numpy as np
 
 # Read images
-original = cv2.imread("waldo3.jpg", cv2.IMREAD_COLOR)
+original = cv2.imread("waldo2.jpeg", cv2.IMREAD_COLOR)
 waldo = cv2.imread("templateWaldo.jpeg", cv2.IMREAD_COLOR)
 w, h, channels = waldo.shape
 
 #find matches
-result = cv2.matchTemplate(original, waldo, cv2.TM_SQDIFF_NORMED)
+result = cv2.matchTemplate(original, waldo, cv2.TM_CCOEFF)
 min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
 #box waldo
-top_left = min_loc
+top_left = max_loc
 bot_right = (top_left[0] + w, top_left[1] + h)
 cv2.rectangle(original, top_left, bot_right, 255, 2)
 
